@@ -31,8 +31,8 @@ function Noble() {
     self.emit('scanStop');
   });
 
-  this._bindings.on('peripheralDiscover', function(uuid, localName, services, rssi) {
-    var peripheral = self._peripherals[uuid] = new NoblePeripheral(uuid, localName, services, rssi);
+  this._bindings.on('peripheralDiscover', function(uuid, localName, mfgdata, services, rssi) {
+    var peripheral = self._peripherals[uuid] = new NoblePeripheral(uuid, localName, mfgdata, services, rssi);
 
     self.emit('peripheralDiscover', peripheral);
   });
@@ -105,9 +105,10 @@ Noble.prototype.discoverPeripheralServices = function(uuid, serviceUUIDs) {
 var noble = new Noble();
 module.exports = noble;
 
-function NoblePeripheral(uuid, localName, services, rssi) {
+function NoblePeripheral(uuid, localName, mfgdata, services, rssi) {
   this.uuid = uuid;
   this.localName = localName;
+  this.mfgdata = mfgdata;
   this.services = services;
   this.rssi = rssi;
 }

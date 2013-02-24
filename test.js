@@ -1,4 +1,5 @@
 var noble = require('./index');
+// var noble = require('noble');
 
 console.log('noble');
 
@@ -49,7 +50,8 @@ noble.on('peripheralDiscover', function(peripheral) {
     this.disconnect();
   });
 
-  peripheral.connect();
+//  peripheral.connect();
+//  peripheral.discoverServices();
 });
 
 noble.on('peripheralConnect', function(peripheral) {

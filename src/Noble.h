@@ -41,7 +41,7 @@ public:
   static void PeripheralServicesDiscovered(uv_work_t* req);
 
   void updateState(State state);
-  void peripheralDiscovered(std::string uuid, std::string localName, std::vector<std::string> services, int rssi);
+  void peripheralDiscovered(std::string uuid, std::string localName, std::string mfgdata, std::vector<std::string> services, int rssi);
   void peripheralConnected(std::string uuid);
   void peripheralConnectFailure(std::string uuid, std::string reason);
   void peripheralDisconnected(std::string uuid);

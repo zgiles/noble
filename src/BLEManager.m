@@ -133,8 +133,17 @@
   UNUSED(central);
 
   std::string localName = "";
+  std::string mfgdata = "jacob";
   if ([advertisementData objectForKey:CBAdvertisementDataLocalNameKey]) {
     localName =  [[advertisementData objectForKey:CBAdvertisementDataLocalNameKey] cStringUsingEncoding:NSASCIIStringEncoding];
+  }
+
+//  if ([advertisementData objectForKey:CBAdvertisementDataManufacturerDataKey]) {
+//    mfgdata =  [[advertisementData objectForKey:CBAdvertisementDataManufacturerDataKey] cStringUsingEncoding:NSASCIIStringEncoding];
+//  }
+
+  if ([advertisementData objectForKey:CBAdvertisementDataTxPowerLevelKey]) {
+    mfgdata =  [[advertisementData objectForKey:CBAdvertisementDataTxPowerLevelKey] cStringUsingEncoding:NSASCIIStringEncoding];
   }
 
   std::string uuid = [[peripheral uuid] cStringUsingEncoding:NSASCIIStringEncoding];
@@ -147,10 +156,39 @@
     services.push_back(service);
   }
 
+NSArray *keys = [advertisementData allKeys];
+    for (int i = 0; i < [keys count]; ++i) {
+        id key = [keys objectAtIndex: i];
+        NSString *keyName = (NSString *) key;
+        NSObject *value = [advertisementData objectForKey: key];
+        printf("   prekey: %s\n", [keyName cStringUsingEncoding: NSUTF8StringEncoding]);
+        if ([value isKindOfClass: [NSArray class]]) {
+            printf("   key: %s\n", [keyName cStringUsingEncoding: NSUTF8StringEncoding]);
+            NSArray *values = (NSArray *) value;
+            for (int j = 0; j < [values count]; ++j) {
+                if ([[values objectAtIndex: j] isKindOfClass: [CBUUID class]]) {
+                    CBUUID *uuid = [values objectAtIndex: j];
+                    NSData *data = uuid.data;
+                    printf("      uuid(%d):", j);
+                    for (int j = 0; j < data.length; ++j)
+                        printf(" %2X", ((UInt8 *) data.bytes)[j]);
+                    printf("\n");
+                } else {
+                    const char *valueString = [[value description] cStringUsingEncoding: NSUTF8StringEncoding];
+                    printf("      value(%d): %s\n", j, valueString);
+                }
+            }
+        } else {
+            const char *valueString = [[value description] cStringUsingEncoding: NSUTF8StringEncoding];
+            printf("   key: %s, value: %s\n", [keyName cStringUsingEncoding: NSUTF8StringEncoding], valueString);
+        }
+    }
+
+
   peripheral.delegate = self;
   [self.peripherals setObject:peripheral forKey:[peripheral uuid]];
 
-  _noble->peripheralDiscovered(uuid, localName, services, rssi);
+  _noble->peripheralDiscovered(uuid, localName, mfgdata, services, rssi);
 }
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error

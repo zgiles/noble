@@ -12,6 +12,7 @@ public:
   Noble::Noble *noble;
   std::string uuid;
   std::string localName;
+  std::string mfgdata;
   std::vector<std::string> services;
   int rssi;
 };
@@ -85,7 +86,7 @@ void Noble::updateState(State state) {
   uv_queue_work(uv_default_loop(), req, NULL, Noble::UpdateState);
 }
 
-void Noble::peripheralDiscovered(std::string uuid, std::string localName, std::vector<std::string> services, int rssi) {
+void Noble::peripheralDiscovered(std::string uuid, std::string localName, std::string mfgdata, std::vector<std::string> services, int rssi) {
   uv_work_t *req = new uv_work_t();
 
   PeripheralDiscoveredData* data = new PeripheralDiscoveredData;
@@ -93,6 +94,7 @@ void Noble::peripheralDiscovered(std::string uuid, std::string localName, std::v
   data->noble = this;
   data->uuid = uuid;
   data->localName = localName;
+  data->mfgdata = mfgdata;
   data->services = services;
   data->rssi = rssi;
 
@@ -403,14 +405,15 @@ void Noble::PeripheralDiscovered(uv_work_t* req) {
     services->Set(i, v8::String::New(data->services[i].c_str()));
   }
 
-  v8::Handle<v8::Value> argv[5] = {
+  v8::Handle<v8::Value> argv[6] = {
     v8::String::New("peripheralDiscover"),
     v8::String::New(data->uuid.c_str()),
     v8::String::New(data->localName.c_str()),
+    v8::String::New(data->mfgdata.c_str()),
     services,
     v8::Integer::New(data->rssi)
   };
-  node::MakeCallback(noble->This, "emit", 5, argv);
+  node::MakeCallback(noble->This, "emit", 6, argv);
 
   delete data;
   delete req;
